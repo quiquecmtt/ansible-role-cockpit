@@ -1,4 +1,4 @@
-Role Name
+Ansible Role Cockpit
 =========
 
 Ansible role to install Cockpit and related packages in RHEL and Debian based distributions.
