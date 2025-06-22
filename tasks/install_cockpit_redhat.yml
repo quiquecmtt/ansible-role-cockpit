@@ -7,6 +7,7 @@
   ansible.builtin.dnf:
     name: cockpit
     state: present
+    update_cache: true
   when: ansible_os_family == "RedHat"
 
 - name: Esure Cockpit socket is enabled and started
