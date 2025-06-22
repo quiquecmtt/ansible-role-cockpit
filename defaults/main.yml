@@ -1,5 +1,12 @@
 ---
 # defaults file for ansible-role-cockpit
+cockpit_packages:
+  - cockpit
+  - cockpit-storaged
+  - udisks2-lvm2
+  - pcp
+  - python3-pcp
+
 cockpit_allow_root_login: false
 
 cockpit_config_dir: /etc/cockpit

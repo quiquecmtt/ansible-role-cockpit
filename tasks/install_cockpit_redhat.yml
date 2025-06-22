@@ -5,18 +5,29 @@
     - cockpit
     - cockpit_install
   ansible.builtin.dnf:
-    name: cockpit
+    name: "{{ cockpit_packages }}"
     state: present
     update_cache: true
   when: ansible_os_family == "RedHat"
 
-- name: Esure Cockpit socket is enabled and started
+- name: Ensure Cockpit socket is enabled and started
   become: true
   tags:
     - cockpit
     - cockpit_install
   ansible.builtin.systemd:
     name: cockpit.socket
+    enabled: true
+    state: started
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure pmlogger is enabled and started
+  become: true
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.systemd:
+    name: pmlogger.service
     enabled: true
     state: started
   when: ansible_os_family == "RedHat"

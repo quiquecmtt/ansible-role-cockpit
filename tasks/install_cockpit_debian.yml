@@ -14,7 +14,7 @@
     - cockpit
     - cockpit_install
   ansible.builtin.apt:
-    name: cockpit
+    name: "{{ cockpit_packages }}"
     state: present
     default_release: "{{ ansible_lsb.codename }}-backports"
     update_cache: true
