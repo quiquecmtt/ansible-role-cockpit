@@ -1,3 +1,9 @@
-#SPDX-License-Identifier: MIT-0
 ---
 # defaults file for ansible-role-cockpit
+cockpit_allow_root_login: false
+
+cockpit_config_dir: /etc/cockpit
+
+cockpit_config: []
+
+cockpit_disallowed_users: []

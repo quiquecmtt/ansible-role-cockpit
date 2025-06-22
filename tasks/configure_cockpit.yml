@@ -1,0 +1,25 @@
+---
+- name: Provision Cockpit disallowed-users from template.
+  become: true
+  tags:
+    - cockpit
+    - cockpit_configuration
+  ansible.builtin.template:
+    src: disallowed-users.j2
+    dest: "{{ cockpit_config_dir }}/disallowed-users"
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Provision Cockpit configuration from template.
+  become: true
+  tags:
+    - cockpit
+    - cockpit_configuration
+  ansible.builtin.template:
+    src: cockpit.conf.j2
+    dest: "{{ cockpit_config_dir }}/cockpit.conf"
+    mode: "0644"
+    owner: root
+    group: root
+  notify: Restart Cockpit

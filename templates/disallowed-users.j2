@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+# Template path: {{ template_path }}
+{% if not cockpit_allow_root_login %}
+root
+{% endif %}
+{% for user in cockpit_disallowed_users %}
+{{ user }}
+{% endfor %}

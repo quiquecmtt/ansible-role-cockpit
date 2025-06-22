@@ -1,3 +1,6 @@
-#SPDX-License-Identifier: MIT-0
 ---
 # handlers file for ansible-role-cockpit
+- name: Restart Cockpit
+  ansible.builtin.systemd:
+    name: cockpit
+    state: restarted
