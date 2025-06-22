@@ -1,0 +1,8 @@
+---
+- name: Ensure Cockpit is installed
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.include_tasks:
+    file: "ensure_cockpit_installation_{{ (ansible_os_family | lower) }}.yml"
+  when: ansible_os_family in ["RedHat", "Debian"]

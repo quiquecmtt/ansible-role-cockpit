@@ -1,0 +1,21 @@
+---
+- name: Add Cockpit backports repository into sources list
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.apt_repository:
+    repo: "deb http://deb.debian.org/debian {{ ansible_lsb.codename }}-backports main"
+    filename: backports
+    state: present
+  when: ansible_distribution in ["Debian"]
+
+- name: Ensure Cockpit is installed using default release backports repository
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.apt:
+    name: cockpit
+    state: present
+    default_release: "{{ ansible_lsb.codename }}-backports"
+    update_cache: true
+  when: ansible_os_family == "Debian"

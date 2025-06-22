@@ -1,0 +1,40 @@
+---
+- name: Ensure Cockpit package is installed
+  become: true
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.dnf:
+    name: cockpit
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Esure Cockpit socket is enabled and started
+  become: true
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.systemd:
+    name: cockpit.socket
+    enabled: true
+    state: started
+  when: ansible_os_family == "RedHat"
+
+- name: Gather package facts
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Ensure Cockpit service is enabled in Firewalld
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.posix.firewalld:
+    service: cockpit
+    state: enabled
+    permanent: true
+    immediate: true
+    offline: true
+  when: "'firewalld' in ansible_facts.packages"
