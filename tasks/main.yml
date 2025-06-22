@@ -13,3 +13,12 @@
     - cockpit_configuration
   ansible.builtin.include_tasks:
     file: "configure_cockpit.yml"
+  when: ansible_os_family in ["RedHat", "Debian"]
+
+- name: Ensure Cockpit plugins are installed
+  tags:
+    - cockpit
+    - cockpit_plugins
+  ansible.builtin.include_tasks:
+    file: "install_cockpit_plugins_{{ ansible_os_family | lower }}.yml"
+  when: ansible_os_family in ["RedHat", "Debian"]

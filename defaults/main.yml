@@ -7,3 +7,5 @@ cockpit_config_dir: /etc/cockpit
 cockpit_config: []
 
 cockpit_disallowed_users: []
+
+cockpit_plugins: []

@@ -1,0 +1,12 @@
+---
+- name: Ensure Cockpit plugins are installed using default release backports repository
+  become: true
+  tags:
+    - cockpit
+    - cockpit_plugins
+  ansible.builtin.apt:
+    name: "{{ cockpit_plugins }}"
+    state: present
+    default_release: "{{ ansible_lsb.codename }}-backports"
+    update_cache: true
+  when: ansible_os_family == "Debian"
