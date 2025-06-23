@@ -1,5 +1,6 @@
 ---
 - name: Add Cockpit backports repository into sources list
+  become: true
   tags:
     - cockpit
     - cockpit_install
@@ -10,6 +11,7 @@
   when: ansible_distribution in ["Debian"]
 
 - name: Ensure Cockpit is installed using default release backports repository
+  become: true
   tags:
     - cockpit
     - cockpit_install
