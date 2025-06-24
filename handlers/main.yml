@@ -1,6 +1,7 @@
 ---
 # handlers file for ansible-role-cockpit
 - name: Restart Cockpit
+  become: true
   ansible.builtin.systemd:
     name: cockpit
     state: restarted
