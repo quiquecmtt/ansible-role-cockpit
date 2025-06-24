@@ -6,6 +6,6 @@
     - cockpit_plugins
   ansible.builtin.dnf:
     name: "{{ cockpit_plugins }}"
-    state: present
+    state: "{{ cockpit_pkg_state }}"
     update_cache: true
   when: ansible_os_family == "RedHat"

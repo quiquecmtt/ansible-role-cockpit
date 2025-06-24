@@ -6,7 +6,7 @@
     - cockpit_plugins
   ansible.builtin.apt:
     name: "{{ cockpit_plugins }}"
-    state: present
+    state: "{{ cockpit_pkg_state }}"
     default_release: "{{ ansible_lsb.codename }}-backports"
     update_cache: true
   when: ansible_os_family == "Debian"

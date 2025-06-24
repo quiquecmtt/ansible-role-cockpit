@@ -21,6 +21,8 @@ cockpit_packages:     # Packages being installed
   - pcp               # Needed for performance metrics
   - python3-pcp       # Needed for performance metrics
 
+cockpit_pkg_state: present # latest, present -> for apt, dnf modules
+
 cockpit_allow_root_login: false # Allow root login through Cockpit Web UI
 
 cockpit_config_dir: /etc/cockpit # Cockpit configuration directory
@@ -59,6 +61,8 @@ Dependencies
 You shouldn't need any variable change, unless you want to change the configuration. Here is an example you may want for using in your inventory.
 
 ```yaml
+cockpit_pkg_state: latest
+
 cockpit_allow_root_login: true
 
 cockpit_disallowed_users:

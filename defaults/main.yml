@@ -7,6 +7,8 @@ cockpit_packages:
   - pcp
   - python3-pcp
 
+cockpit_pkg_state: present
+
 cockpit_allow_root_login: false
 
 cockpit_config_dir: /etc/cockpit
