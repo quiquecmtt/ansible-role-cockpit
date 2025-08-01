@@ -20,4 +20,15 @@
     state: "{{ cockpit_pkg_state }}"
     default_release: "{{ ansible_lsb.codename }}-backports"
     update_cache: true
-  when: ansible_os_family == "Debian"
+  when: ansible_distribution == "Debian" or (ansible_distribution == "Ubuntu" and "LTS" in ansible_lsb.description)
+
+- name: Ensure Cockpit is installed
+  become: true
+  tags:
+    - cockpit
+    - cockpit_install
+  ansible.builtin.apt:
+    name: "{{ cockpit_packages }}"
+    state: "{{ cockpit_pkg_state }}"
+    update_cache: true
+  when: ansible_distribution == "Ubuntu" and "LTS" not in ansible_lsb.description
