@@ -1,0 +1,18 @@
+---
+role_name_check: 1
+dependency:
+  name: galaxy
+  options:
+    ignore-errors: true
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: "geerlingguy/docker-${MOLECULE_DISTRO:-rockylinux9}-ansible:latest"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    privileged: true
+    pre_build_image: true
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ${MOLECULE_PLAYBOOK:-converge.yml}

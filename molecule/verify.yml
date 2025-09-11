@@ -1,0 +1,17 @@
+---
+- name: Verify Cockpit role
+  hosts: all
+  tasks:
+
+    - name: Verify Cockpit service is running
+      command: systemctl is-active cockpit
+      register: cockpit_service_status
+      when: ansible_facts.service_mgr == 'systemd'
+      changed_when: false
+      failed_when: cockpit_service_status.stdout.strip() != "active"
+
+    - name: Display Docker service status
+      debug:
+        msg: "Cockpit service is {{ cockpit_service_status.stdout.strip() }}"
+      when: ansible_facts.service_mgr == 'systemd'
+
