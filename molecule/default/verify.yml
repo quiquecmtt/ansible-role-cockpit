@@ -1,0 +1,15 @@
+---
+- name: Verify Cockpit role
+  hosts: all
+  tasks:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Verify Cockpit service is running
+      ansible.builtin.assert:
+        that:
+          - "'cockpit.service' in ansible_facts.services"
+          - "ansible_facts.services['cockpit.service'].state == 'running'"
+        fail_msg: "Cockpit service is not running!"
+        success_msg: "Cockpit service is running."
+      when: ansible_facts.service_mgr == "systemd"
