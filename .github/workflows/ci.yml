@@ -42,8 +42,6 @@ jobs:
         distro:
           - ubuntu2404
           - ubuntu2204
-          - debian13
-          - debian12
           - fedora42
 
     steps:
