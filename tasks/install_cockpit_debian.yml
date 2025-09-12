@@ -5,7 +5,7 @@
     - cockpit
     - cockpit_install
   ansible.builtin.apt_repository:
-    repo: "deb http://deb.debian.org/debian {{ ansible_lsb.codename }}-backports main"
+    repo: "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main"
     filename: backports
     state: present
   when: ansible_distribution in ["Debian"]
@@ -18,7 +18,7 @@
   ansible.builtin.apt:
     name: "{{ cockpit_packages }}"
     state: "{{ cockpit_pkg_state }}"
-    default_release: "{{ ansible_lsb.codename }}-backports"
+    default_release: "{{ ansible_distribution_release }}-backports"
     update_cache: true
   when: ansible_distribution == "Debian" or (ansible_distribution == "Ubuntu" and "LTS" in ansible_lsb.description)
 
