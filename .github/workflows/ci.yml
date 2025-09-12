@@ -40,9 +40,10 @@ jobs:
     strategy:
       matrix:
         distro:
+          - fedora42
+          - debian12
           - ubuntu2404
           - ubuntu2204
-          - fedora42
 
     steps:
       - name: Check out the codebase.
