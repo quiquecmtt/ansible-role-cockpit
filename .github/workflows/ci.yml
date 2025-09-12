@@ -41,7 +41,6 @@ jobs:
       matrix:
         distro:
           - rockylinux9
-          - ubuntu2504
           - ubuntu2404
           - ubuntu2204
           - debian13
