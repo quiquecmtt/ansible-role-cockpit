@@ -7,7 +7,7 @@
   ansible.builtin.apt:
     name: "{{ cockpit_plugins }}"
     state: "{{ cockpit_pkg_state }}"
-    default_release: "{{ ansible_lsb.codename }}-backports"
+    default_release: "{{ ansible_distribution_release }}-backports"
     update_cache: true
   when: ansible_distribution == "Debian" or (ansible_distribution == "Ubuntu" and "LTS" in ansible_lsb.description)
 
