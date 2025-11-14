@@ -4,10 +4,13 @@
   tags:
     - cockpit
     - cockpit_install
-  ansible.builtin.apt_repository:
-    repo: "deb http://deb.debian.org/debian {{ ansible_distribution_release }}-backports main"
-    filename: backports
-    state: present
+  ansible.builtin.deb822_repository:
+    name: backports
+    types: [deb]
+    uris: http://deb.debian.org/debian
+    suites: "{{ ansible_distribution_release }}-backports"
+    components: [main]
+    enabled: true
   when: ansible_distribution in ["Debian"]
 
 - name: Ensure Cockpit is installed using default release backports repository
