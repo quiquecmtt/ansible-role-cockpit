@@ -21,11 +21,16 @@
     components: [main]
     enabled: true
   when: ansible_distribution in ["Debian"]
+  register: cockpit_backports_repo
 
-- name: Update apt cache
+- name: Update APT cache
+  tags:
+    - cockpit
+    - cockpit_install
   become: true
   ansible.builtin.apt:
     update_cache: true
+  when: cockpit_backports_repo.changed
 
 - name: Ensure Cockpit is installed using default release backports repository
   become: true
