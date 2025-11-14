@@ -4,7 +4,7 @@
   ansible.builtin.apt:
     name:
       - python3-debian
-      - gpg
+      - ca-certificates
     state: present
   when: ansible_distribution in ["Debian"]
 
@@ -14,7 +14,7 @@
     - cockpit
     - cockpit_install
   ansible.builtin.deb822_repository:
-    name: "{{ ansible_distribution_release }}-backports"
+    name: "backports"
     types: [deb]
     uris: http://deb.debian.org/debian
     suites: "{{ ansible_distribution_release }}-backports"
