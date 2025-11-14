@@ -2,7 +2,7 @@
 - name: Install python3-debian (required for deb822_repository)
   become: true
   ansible.builtin.apt:
-    name: 
+    name:
       - python3-debian
       - gpg
     state: present
