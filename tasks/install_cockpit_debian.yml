@@ -1,4 +1,11 @@
 ---
+- name: Install python3-debian (required for deb822_repository)
+  become: true
+  ansible.builtin.apt:
+    name: python3-debian
+    state: present
+  when: ansible_distribution in ["Debian"]
+
 - name: Add Cockpit backports repository into sources list
   become: true
   tags:
