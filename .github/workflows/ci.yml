@@ -12,6 +12,9 @@ defaults:
   run:
     working-directory: "quiquecmtt.cockpit"
 
+permissions:
+  pull-requests: write # Add this for PR comments
+
 jobs:
   lint:
     name: Lint
@@ -45,12 +48,6 @@ jobs:
           - debian13
           - ubuntu2404
           - ubuntu2204
-    permissions:
-      actions: read
-      contents: read
-      id-token: write # This is often the missing permission
-      pull-requests: write # Add this for PR comments
-      checks: write # Add this for check runs
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v4
