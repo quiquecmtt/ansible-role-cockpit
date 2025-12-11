@@ -46,9 +46,9 @@ jobs:
           - ubuntu2404
           - ubuntu2204
     permissions:
-      contents: write # Allows writing to the Job Summary/Artifacts
-      pull-requests: write # Allows commenting on Pull Requests (if configured)
-
+      actions: read
+      contents: read
+      id-token: write # This is often the missing permission
     steps:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
