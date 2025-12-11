@@ -51,8 +51,8 @@ jobs:
         with:
           path: "quiquecmtt.cockpit"
 
-      - name: Start Telemetry
-        uses: quiquecmtt/telemetry-action@v1
+      - name: Telemetry
+        uses: quiquecmtt/telemetry-action@v1.1
         with:
           sampling_interval: "2"
           output_format: "both"
