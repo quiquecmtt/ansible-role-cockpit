@@ -50,15 +50,15 @@ jobs:
       contents: read
       id-token: write # This is often the missing permission
     steps:
-      - name: Collect Workflow Telemetry
-        uses: catchpoint/workflow-telemetry-action@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Check out the codebase.
         uses: actions/checkout@v4
         with:
           path: "quiquecmtt.cockpit"
+
+      - name: Collect Workflow Telemetry
+        uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python 3.
         uses: actions/setup-python@v5
