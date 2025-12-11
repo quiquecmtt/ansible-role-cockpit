@@ -1,12 +1,13 @@
 ---
 name: Continuous Integration
-"on":
+on:
   pull_request:
   push:
     branches:
       - main
   schedule:
     - cron: "0 7 * * 0"
+  workflow_dispatch:
 
 defaults:
   run:
