@@ -52,6 +52,8 @@ jobs:
     steps:
       - name: Collect Workflow Telemetry
         uses: catchpoint/workflow-telemetry-action@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check out the codebase.
         uses: actions/checkout@v4
