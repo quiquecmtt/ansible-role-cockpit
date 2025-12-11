@@ -49,6 +49,8 @@ jobs:
       actions: read
       contents: read
       id-token: write # This is often the missing permission
+      pull-requests: write # Add this for PR comments
+      checks: write # Add this for check runs
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v4
