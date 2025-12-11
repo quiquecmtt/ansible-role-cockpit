@@ -12,6 +12,10 @@ defaults:
   run:
     working-directory: "quiquecmtt.cockpit"
 
+permissions:
+  contents: write # Allows writing to the Job Summary/Artifacts
+  pull-requests: write # Allows commenting on Pull Requests (if configured)
+
 jobs:
   lint:
     name: Lint
