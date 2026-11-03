@@ -22,6 +22,10 @@
     enabled: true
   when: cockpit_debian_backports
   register: cockpit_backports_repo
+  notify: Refresh Cockpit APT metadata
+
+- name: Load newly added backports before APT validates default_release
+  ansible.builtin.meta: flush_handlers
 
 - name: Install Cockpit and selected optional components
   become: true
@@ -30,5 +34,5 @@
     state: "{{ cockpit_pkg_state }}"
     default_release: "{{ (ansible_facts['distribution_release'] ~ '-backports') if cockpit_debian_backports else omit }}"
     update_cache: true
-    cache_valid_time: "{{ 0 if cockpit_backports_repo is changed else 3600 }}"
+    cache_valid_time: 3600
     policy_rc_d: 101

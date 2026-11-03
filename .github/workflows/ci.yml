@@ -43,11 +43,12 @@ jobs:
           python -m unittest discover -s tests -v
 
   molecule:
-    name: Molecule
+    name: Molecule (${{ matrix.distro }}, ${{ matrix.variant }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        variant: [default]
         distro:
           - fedora44
           - rockylinux9
@@ -57,10 +58,10 @@ jobs:
           - ubuntu2204
         include:
           - distro: fedora44
-            scenario: metrics
+            variant: metrics
             metrics: "true"
           - distro: debian13
-            scenario: backports
+            variant: backports
             backports: "true"
     steps:
       - name: Check out the codebase.
@@ -73,7 +74,7 @@ jobs:
         with:
           sampling_interval: "2"
           output_format: "both"
-          artifact_name: "resource-metrics-molecule-${{ matrix.distro }}"
+          artifact_name: "resource-metrics-molecule-${{ matrix.distro }}-${{ matrix.variant }}"
 
       - name: Set up Python 3.
         uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6

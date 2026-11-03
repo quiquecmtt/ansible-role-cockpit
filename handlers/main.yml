@@ -1,4 +1,9 @@
 ---
+- name: Refresh Cockpit APT metadata
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
 # handlers file for ansible-role-cockpit
 - name: Reload systemd socket configuration
   become: true

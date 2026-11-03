@@ -58,7 +58,7 @@ See `defaults/main.yml` for the complete defaults.
 | `cockpit_manage_firewall` | `false` | Opt in to a firewalld service rule |
 | `cockpit_firewall_zone` | empty | Required explicit zone when managing firewalld |
 | `cockpit_metrics_enabled` | `false` | Install PCP packages and start pmcd/pmlogger |
-| `cockpit_metrics_packages` | cockpit-pcp, pcp, python3-pcp | Override for distro requirements |
+| `cockpit_metrics_packages` | pcp, python3-pcp | Override for distro requirements |
 | `cockpit_debian_backports` | `false` | Opt-in Debian-only repository and package selection |
 | `cockpit_allow_root_login` | `false` | Permit root web login |
 | `cockpit_disallowed_users` | `[]` | Other accounts blocked from web login |
@@ -89,6 +89,10 @@ workload owner's Unix socket and account policy belong to the Podman role.
 No Podman TCP endpoint is created. Cross-user visibility depends on the installed
 Cockpit Podman version and administrative permissions; inactive other-user
 Quadlets have upstream limitations.
+
+Fedora 44 no longer ships the separate `cockpit-pcp` package. Older Cockpit builds
+that need it for the history UI can add it to `cockpit_plugins` or override
+`cockpit_metrics_packages`; PCP collection itself is controlled by the metrics flag.
 
 ## Development and tests
 

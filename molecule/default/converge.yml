@@ -5,6 +5,8 @@
   vars:
     cockpit_metrics_enabled: "{{ lookup('ansible.builtin.env', 'MOLECULE_METRICS') | default('false', true) | bool }}"
     cockpit_debian_backports: "{{ lookup('ansible.builtin.env', 'MOLECULE_BACKPORTS') | default('false', true) | bool }}"
+    cockpit_plugins:
+      - cockpit-podman
 
   pre_tasks:
     - name: Update apt cache.

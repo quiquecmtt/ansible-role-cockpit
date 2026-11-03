@@ -3,6 +3,13 @@
   hosts: all
   become: true
   tasks:
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
+
+    - name: Require the selected Podman plugin
+      ansible.builtin.assert:
+        that: "'cockpit-podman' in ansible_facts['packages']"
+
     - name: Require an active Cockpit socket # noqa command-instead-of-module -- read-only verification
       ansible.builtin.command: systemctl is-active cockpit.socket
       register: cockpit_test_active

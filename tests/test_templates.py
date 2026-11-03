@@ -50,6 +50,14 @@ class TemplateTests(unittest.TestCase):
         self.assertIn("root", rendered.splitlines())
         self.assertIn("containers", rendered.splitlines())
 
+    def test_ci_keeps_optional_variants_separate_from_default_coverage(self):
+        workflow = yaml.safe_load((ROOT / ".github/workflows/ci.yml").read_text())
+        matrix = workflow["jobs"]["molecule"]["strategy"]["matrix"]
+        self.assertIn("fedora44", matrix["distro"])
+        self.assertEqual(matrix["variant"], ["default"])
+        for extra in matrix["include"]:
+            self.assertNotIn(extra["variant"], matrix["variant"])
+
 
 if __name__ == "__main__":
     unittest.main()
