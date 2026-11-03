@@ -1,24 +1,55 @@
 ---
-- name: Ensure Cockpit is installed
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.include_tasks:
-    file: "install_cockpit_{{ ansible_os_family | lower }}.yml"
-  when: ansible_os_family in ["RedHat", "Debian"]
+- name: Validate platform and explicit listener/firewall configuration
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] in ['RedHat', 'Debian']
+      - cockpit_config is mapping
+      - cockpit_pkg_state in ['present', 'latest']
+      - cockpit_listen_streams is sequence and cockpit_listen_streams is not string
+      - cockpit_listen_streams | length > 0
+      - not cockpit_manage_firewall or cockpit_firewall_zone | length > 0
+      - not cockpit_debian_backports or ansible_facts['distribution'] == 'Debian'
 
-- name: Ensure Cockpit configuration
-  tags:
-    - cockpit
-    - cockpit_configuration
-  ansible.builtin.include_tasks:
-    file: "configure_cockpit.yml"
-  when: ansible_os_family in ["RedHat", "Debian"]
+- name: Validate configuration sections
+  ansible.builtin.assert:
+    that: item.value is mapping
+  loop: "{{ cockpit_config | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
 
-- name: Ensure Cockpit plugins are installed
-  tags:
-    - cockpit
-    - cockpit_plugins
-  ansible.builtin.include_tasks:
-    file: "install_cockpit_plugins_{{ ansible_os_family | lower }}.yml"
-  when: ansible_os_family in ["RedHat", "Debian"]
+- name: Install Cockpit and selected plugins from distribution packages
+  ansible.builtin.include_tasks: "install_cockpit_{{ ansible_facts['os_family'] | lower }}.yml"
+
+- name: Configure Cockpit before starting its listener
+  ansible.builtin.include_tasks: configure_cockpit.yml
+
+- name: Enable optional historical metrics collection
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - pmcd.service
+    - pmlogger.service
+  when: cockpit_metrics_enabled
+
+- name: Allow Cockpit only in an explicitly requested firewall zone
+  become: true
+  ansible.posix.firewalld:
+    zone: "{{ cockpit_firewall_zone }}"
+    service: cockpit
+    state: enabled
+    permanent: true
+    immediate: true
+  when: cockpit_manage_firewall
+
+- name: Apply listener changes before ensuring socket activation
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable Cockpit socket activation
+  become: true
+  ansible.builtin.systemd_service:
+    name: cockpit.socket
+    enabled: true
+    state: started

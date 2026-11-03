@@ -2,10 +2,6 @@
 # defaults file for ansible-role-cockpit
 cockpit_packages:
   - cockpit
-  - cockpit-storaged
-  - udisks2-lvm2
-  - pcp
-  - python3-pcp
 
 cockpit_pkg_state: present
 
@@ -13,8 +9,25 @@ cockpit_allow_root_login: false
 
 cockpit_config_dir: /etc/cockpit
 
-cockpit_config: []
+cockpit_config: {}
 
 cockpit_disallowed_users: []
 
 cockpit_plugins: []
+
+# Safe by default: reach Cockpit through an SSH tunnel, not every host interface.
+cockpit_listen_streams:
+  - 127.0.0.1:9090
+
+cockpit_manage_firewall: false
+cockpit_firewall_zone: ""
+
+# PCP is useful for history, not required for the basic host/container overview.
+cockpit_metrics_enabled: false
+cockpit_metrics_packages:
+  - cockpit-pcp
+  - pcp
+  - python3-pcp
+
+# Use distribution repositories by default. Never configure Debian repos on Ubuntu.
+cockpit_debian_backports: false

@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+[Socket]
+# Reset the vendor wildcard listener before declaring our own.
+ListenStream=
+{% for endpoint in cockpit_listen_streams %}
+ListenStream={{ endpoint }}
+{% endfor %}

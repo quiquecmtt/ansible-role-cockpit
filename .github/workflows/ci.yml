@@ -13,42 +13,58 @@ defaults:
   run:
     working-directory: "quiquecmtt.cockpit"
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           path: "quiquecmtt.cockpit"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.x"
+          python-version: "3.14"
 
       - name: Install test dependencies.
-        run: pip3 install yamllint
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: Install pinned Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
 
       - name: Lint code.
         run: |
-          yamllint .
+          ansible-lint
+          python -m unittest discover -s tests -v
 
   molecule:
     name: Molecule
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         distro:
-          - fedora42
+          - fedora44
+          - rockylinux9
           - debian12
           - debian13
           - ubuntu2404
           - ubuntu2204
+        include:
+          - distro: fedora44
+            scenario: metrics
+            metrics: "true"
+          - distro: debian13
+            scenario: backports
+            backports: "true"
     steps:
       - name: Check out the codebase.
-        uses: actions/checkout@v4
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           path: "quiquecmtt.cockpit"
 
@@ -60,12 +76,12 @@ jobs:
           artifact_name: "resource-metrics-molecule-${{ matrix.distro }}"
 
       - name: Set up Python 3.
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install test dependencies.
-        run: pip3 install ansible molecule molecule-plugins[docker] docker
+        run: python -m pip install -r requirements-dev.txt
 
       - name: Run Molecule tests.
         run: molecule test
@@ -73,3 +89,5 @@ jobs:
           PY_COLORS: "1"
           ANSIBLE_FORCE_COLOR: "1"
           MOLECULE_DISTRO: ${{ matrix.distro }}
+          MOLECULE_METRICS: ${{ matrix.metrics || 'false' }}
+          MOLECULE_BACKPORTS: ${{ matrix.backports || 'false' }}

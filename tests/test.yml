@@ -3,4 +3,4 @@
   hosts: localhost
   remote_user: root
   roles:
-    - cockpit
+    - role: "{{ playbook_dir }}/.." # noqa role-name[path] -- exercise this checkout without installing a second copy
