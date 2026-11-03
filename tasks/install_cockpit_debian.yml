@@ -1,56 +1,38 @@
 ---
-- name: Install python3-debian (required for deb822_repository)
+- name: Prepare optional Debian backports support
   become: true
   ansible.builtin.apt:
     name:
       - python3-debian
-      - ca-certificates
+      - debian-archive-keyring
     state: present
-  when: ansible_distribution in ["Debian"]
+    update_cache: true
+    cache_valid_time: 3600
+  when: cockpit_debian_backports
 
-- name: Add Cockpit backports repository into sources list
+- name: Configure backports only when explicitly requested on Debian
   become: true
-  tags:
-    - cockpit
-    - cockpit_install
   ansible.builtin.deb822_repository:
-    name: "backports"
+    name: cockpit-backports
     types: [deb]
-    uris: http://deb.debian.org/debian
-    suites: "{{ ansible_distribution_release }}-backports"
+    uris: https://deb.debian.org/debian
+    suites: "{{ ansible_facts['distribution_release'] }}-backports"
     components: [main]
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
     enabled: true
-  when: ansible_distribution in ["Debian"]
+  when: cockpit_debian_backports
   register: cockpit_backports_repo
+  notify: Refresh Cockpit APT metadata
 
-- name: Update APT cache
-  tags:
-    - cockpit
-    - cockpit_install
+- name: Load newly added backports before APT validates default_release
+  ansible.builtin.meta: flush_handlers
+
+- name: Install Cockpit and selected optional components
   become: true
   ansible.builtin.apt:
-    update_cache: true
-  when: cockpit_backports_repo.changed
-
-- name: Ensure Cockpit is installed using default release backports repository
-  become: true
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.apt:
-    name: "{{ cockpit_packages }}"
+    name: "{{ cockpit_packages + cockpit_plugins + (cockpit_metrics_packages if cockpit_metrics_enabled else []) }}"
     state: "{{ cockpit_pkg_state }}"
-    default_release: "{{ ansible_distribution_release }}-backports"
+    default_release: "{{ (ansible_facts['distribution_release'] ~ '-backports') if cockpit_debian_backports else omit }}"
     update_cache: true
-  when: ansible_distribution == "Debian" or (ansible_distribution == "Ubuntu" and "LTS" in ansible_lsb.description)
-
-- name: Ensure Cockpit is installed
-  become: true
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.apt:
-    name: "{{ cockpit_packages }}"
-    state: "{{ cockpit_pkg_state }}"
-    update_cache: true
-  when: ansible_distribution == "Ubuntu" and "LTS" not in ansible_lsb.description
+    cache_valid_time: 3600
+    policy_rc_d: 101

@@ -1,7 +1,32 @@
 ---
-# handlers file for ansible-role-cockpit
-- name: Restart Cockpit
+- name: Refresh Cockpit APT metadata
   become: true
-  ansible.builtin.systemd:
-    name: cockpit
+  ansible.builtin.apt:
+    update_cache: true
+
+# handlers file for ansible-role-cockpit
+- name: Reload systemd socket configuration
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  listen: Reconfigure Cockpit listener
+
+- name: Stop Cockpit before replacing its listening socket
+  become: true
+  ansible.builtin.systemd_service:
+    name: cockpit.service
+    state: stopped
+  listen: Reconfigure Cockpit listener
+
+- name: Restart Cockpit socket
+  become: true
+  ansible.builtin.systemd_service:
+    name: cockpit.socket
     state: restarted
+  listen: Reconfigure Cockpit listener
+
+- name: Reload Cockpit configuration on next activation
+  become: true
+  ansible.builtin.systemd_service:
+    name: cockpit.service
+    state: stopped

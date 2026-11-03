@@ -1,16 +1,26 @@
 ---
 - name: Converge
   hosts: all
-  # become: true
+  become: true
+  vars:
+    cockpit_metrics_enabled: "{{ lookup('ansible.builtin.env', 'MOLECULE_METRICS') | default('false', true) | bool }}"
+    cockpit_debian_backports: "{{ lookup('ansible.builtin.env', 'MOLECULE_BACKPORTS') | default('false', true) | bool }}"
+    cockpit_plugins:
+      - cockpit-podman
 
   pre_tasks:
     - name: Update apt cache.
       ansible.builtin.apt:
         update_cache: true
         cache_valid_time: 600
-      when: ansible_facts.os_family == 'Debian'
+      when: ansible_facts['os_family'] == 'Debian'
 
-    - name: Wait for systemd to complete initialization.  # noqa 303
+    - name: Install socket-inspection tools missing from minimal test images
+      ansible.builtin.package:
+        name: "{{ 'iproute' if ansible_facts['os_family'] == 'RedHat' else 'iproute2' }}"
+        state: present
+
+    - name: Wait for systemd to complete initialization # noqa command-instead-of-module -- read-only readiness probe
       ansible.builtin.command: systemctl is-system-running
       register: systemctl_status
       until: >
@@ -18,7 +28,7 @@
         'degraded' in systemctl_status.stdout
       retries: 30
       delay: 5
-      when: ansible_facts.service_mgr == 'systemd'
+      when: ansible_facts['service_mgr'] == 'systemd'
       changed_when: false
       failed_when: systemctl_status.rc > 1
 

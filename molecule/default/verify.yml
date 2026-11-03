@@ -1,15 +1,67 @@
 ---
-- name: Verify Cockpit role
+- name: Verify socket activation, safe exposure, and optional metrics
   hosts: all
+  become: true
   tasks:
-    - name: Gather service facts
-      ansible.builtin.service_facts:
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
 
-    - name: Verify Cockpit service is running
+    - name: Require the selected Podman plugin
+      ansible.builtin.assert:
+        that: "'cockpit-podman' in ansible_facts['packages']"
+
+    - name: Require an active Cockpit socket # noqa command-instead-of-module -- read-only verification
+      ansible.builtin.command: systemctl is-active cockpit.socket
+      register: cockpit_test_active
+      changed_when: false
+
+    - name: Require boot activation # noqa command-instead-of-module -- read-only verification
+      ansible.builtin.command: systemctl is-enabled cockpit.socket
+      register: cockpit_test_enabled
+      changed_when: false
+
+    - name: Read actual TCP listeners
+      ansible.builtin.command:
+        argv: [ss, --no-header, --listening, --tcp, --numeric, 'sport = :9090']
+      register: cockpit_test_listeners
+      changed_when: false
+
+    - name: Require loopback-only listening and socket activation
       ansible.builtin.assert:
         that:
-          - "'cockpit.service' in ansible_facts.services"
-          - "ansible_facts.services['cockpit.service'].state == 'running'"
-        fail_msg: "Cockpit service is not running!"
-        success_msg: "Cockpit service is running."
-      when: ansible_facts.service_mgr == "systemd"
+          - cockpit_test_active.stdout | trim == 'active'
+          - cockpit_test_enabled.stdout | trim == 'enabled'
+          - "'127.0.0.1:9090' in cockpit_test_listeners.stdout"
+          - cockpit_test_listeners.stdout_lines | length == 1
+          - cockpit_test_listeners.stdout_lines[0].split()[3] == '127.0.0.1:9090'
+          - "'0.0.0.0:9090' not in cockpit_test_listeners.stdout"
+          - "'[::]:9090' not in cockpit_test_listeners.stdout"
+          - "'*:9090' not in cockpit_test_listeners.stdout"
+
+    - name: Exercise HTTPS socket activation using the local self-signed certificate
+      ansible.builtin.uri:
+        url: https://127.0.0.1:9090/ping
+        validate_certs: false
+        status_code: 200
+      register: cockpit_test_https
+      until: cockpit_test_https is succeeded
+      retries: 10
+      delay: 2
+
+    - name: Read the disallowed-users policy
+      ansible.builtin.slurp:
+        src: /etc/cockpit/disallowed-users
+      register: cockpit_test_disallowed
+
+    - name: Require root web login to remain blocked
+      ansible.builtin.assert:
+        that: "'root' in (cockpit_test_disallowed.content | b64decode).splitlines()"
+
+    - name: Require optional metrics collection when requested
+      ansible.builtin.command:
+        argv: [systemctl, is-active, "{{ item }}"]
+      loop:
+        - pmcd.service
+        - pmlogger.service
+      changed_when: false
+      when: lookup('ansible.builtin.env', 'MOLECULE_METRICS') | default('false', true) | bool

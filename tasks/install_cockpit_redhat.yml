@@ -1,53 +1,9 @@
 ---
-- name: Ensure Cockpit package is installed
+- name: Install Cockpit and selected optional components
   become: true
   tags:
     - cockpit
     - cockpit_install
   ansible.builtin.dnf:
-    name: "{{ cockpit_packages }}"
+    name: "{{ cockpit_packages + cockpit_plugins + (cockpit_metrics_packages if cockpit_metrics_enabled else []) }}"
     state: "{{ cockpit_pkg_state }}"
-    update_cache: true
-  when: ansible_os_family == "RedHat"
-
-- name: Ensure Cockpit socket is enabled and started
-  become: true
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.systemd:
-    name: cockpit.socket
-    enabled: true
-    state: started
-  when: ansible_os_family == "RedHat"
-
-- name: Ensure pmlogger is enabled and started
-  become: true
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.systemd:
-    name: pmlogger.service
-    enabled: true
-    state: started
-  when: ansible_os_family == "RedHat"
-
-- name: Gather package facts
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.builtin.package_facts:
-    manager: auto
-
-- name: Ensure Cockpit service is enabled in Firewalld
-  become: true
-  tags:
-    - cockpit
-    - cockpit_install
-  ansible.posix.firewalld:
-    service: cockpit
-    state: enabled
-    permanent: true
-    immediate: true
-    offline: true
-  when: "'firewalld' in ansible_facts.packages"

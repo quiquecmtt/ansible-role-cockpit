@@ -1,13 +1,11 @@
 # {{ ansible_managed }}
-# Template path: {{ template_path }}
 
 {% if cockpit_config %}
 {% for section, options in cockpit_config.items() %}
 [{{ section }}]
 {% for key, value in options.items() %}
-{{ key }}={{ value }}
+{{ key }}={{ ('true' if value else 'false') if value is boolean else value }}
 {% endfor %}
 
 {% endfor %}
 {% endif %}
-

@@ -1,4 +1,16 @@
 ---
+- name: Create the configuration and socket drop-in directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - "{{ cockpit_config_dir }}"
+    - /etc/systemd/system/cockpit.socket.d
+
 - name: Provision Cockpit disallowed-users from template.
   become: true
   tags:
@@ -22,4 +34,14 @@
     mode: "0644"
     owner: root
     group: root
-  notify: Restart Cockpit
+  notify: Reload Cockpit configuration on next activation
+
+- name: Configure the explicit socket listeners
+  become: true
+  ansible.builtin.template:
+    src: cockpit.socket.conf.j2
+    dest: /etc/systemd/system/cockpit.socket.d/50-ansible-listen.conf
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reconfigure Cockpit listener
