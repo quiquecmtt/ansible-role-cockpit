@@ -22,7 +22,7 @@
 
     - name: Read actual TCP listeners
       ansible.builtin.command:
-        argv: [ss, --listening, --tcp, --numeric, 'sport = :9090']
+        argv: [ss, --no-header, --listening, --tcp, --numeric, 'sport = :9090']
       register: cockpit_test_listeners
       changed_when: false
 
@@ -32,6 +32,8 @@
           - cockpit_test_active.stdout | trim == 'active'
           - cockpit_test_enabled.stdout | trim == 'enabled'
           - "'127.0.0.1:9090' in cockpit_test_listeners.stdout"
+          - cockpit_test_listeners.stdout_lines | length == 1
+          - cockpit_test_listeners.stdout_lines[0].split()[3] == '127.0.0.1:9090'
           - "'0.0.0.0:9090' not in cockpit_test_listeners.stdout"
           - "'[::]:9090' not in cockpit_test_listeners.stdout"
           - "'*:9090' not in cockpit_test_listeners.stdout"
